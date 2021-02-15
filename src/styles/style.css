@@ -1,0 +1,59 @@
+input[type="submit"] {
+    border: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0px;
+}
+
+body {
+    background-color: #616161;
+}
+
+canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 800px;
+}
+
+#signinbutton {
+    position: absolute;
+    left: 54%;
+    top: 79.6%;
+}
+
+#registerbutton {
+    position: absolute;
+    left: 59%;
+    top: 79.6%;
+}
+
+#passwordtextbox {
+    position: absolute;
+    left: 46.7%;
+    top: 80.5%;
+}
+
+#usernametextbox {
+    position: absolute;
+    left: 35%;
+    top: 80.5%;
+}
+
+#passwordlabel {
+    position: absolute;
+    left: 42%;
+    top: 79%;
+}
+
+#usernamelabel {
+    position: absolute;
+    left: 30%;
+    top: 79%;
+}
+
+#matchbutton {
+    position: absolute;
+    left: 30%;
+    top: 79.4%;
+}
