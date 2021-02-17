@@ -11,49 +11,33 @@ body {
 
 canvas {
     padding: 0;
-    margin: auto;
     display: block;
-    width: 800px;
 }
 
 #signinbutton {
-    position: absolute;
-    left: 54%;
-    top: 79.6%;
+    position: relative;
 }
 
 #registerbutton {
-    position: absolute;
-    left: 59%;
-    top: 79.6%;
+    position: relative;
 }
 
 #passwordtextbox {
-    position: absolute;
-    left: 46.7%;
-    top: 80.5%;
+    position: relative;
 }
 
 #usernametextbox {
-    position: absolute;
-    left: 35%;
-    top: 80.5%;
+    position: relative;
 }
 
 #passwordlabel {
-    position: absolute;
-    left: 42%;
-    top: 79%;
+    position: relative;
 }
 
 #usernamelabel {
-    position: absolute;
-    left: 30%;
-    top: 79%;
+    position: relative;
 }
 
 #matchbutton {
-    position: absolute;
-    left: 30%;
-    top: 79.4%;
+    position: relative;
 }

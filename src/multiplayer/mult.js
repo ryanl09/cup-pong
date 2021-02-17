@@ -14,6 +14,10 @@ function connect() {
         username: u,
         password: p
     };
+    global.u = u;
+    global.p = p;
+    global.userid = "simple" + u;
+    global.cuid = global.userid;
     if (!u || !p) {
         game.isGuest = true;
         info = {
@@ -22,23 +26,28 @@ function connect() {
     }
     PlayerIO.authenticate('cup-pong-blolf5amkovdn4okt5icg', (game.isGuest ? "guest" : "public"), info, {}, function (client) {
         global.cli = client;
-        global.cli.multiplayer.createJoinRoom("lobbyroom", "lobby", true, null, { name: info.userId }, function (connection) {
+        global.cli.multiplayer.createJoinRoom("lobbyroom", "lobby", true, null, { name: client.connectUserId }, function (connection) {
             global.con = connection;
             console.log("Connected");
             document.getElementById('connectText').innerHTML = '<p>Connected!</p>';
             global.con.addMessageCallback("*", function (message) {
                 switch (message.type) {
                     case "join":
-                        alert(`${message.getString(0)} joined`);
+                        //alert(`${message.getString(0)} joined`);
                         break;
                     case "system":
                         let mes = message.getString(0);
+                        //alert(mes);
                         break;
                     case 'findmatch':
-                        alert(`${message.getString(1)} and ${message.getString(2)}`);
-                        if (global.cli.connectUserId === message.getString(1) || global.cli.connectUserId === message.getString(2)) {
+                        if (global.userid === message.getString(1) || global.userid === message.getString(2)) {
+                            global.myturn = (global.userid === message.getString(1));
                             game.inMatch = true;
                             remove('matchbutton');
+                            connectToGame(message.getString(0));
+                            initCups(10);
+                            renderCups(10);
+                            setup();
                             //disconnect();
                             //connectToGame(message.getString(0));
                         }
@@ -56,25 +65,48 @@ function connect() {
 }
 
 function connectToGame(roomId) {
-    PlayerIO.authenticate('cup-pong-blolf5amkovdn4okt5icg', "public", {userId: "alpha" }, {}, function (client) {
+    let info = {
+        userId: global.u,
+        username: global.u,
+        password: global.p
+    }
+    PlayerIO.authenticate('cup-pong-blolf5amkovdn4okt5icg', "public", info, {}, function (client) {
         global.cli = client;
-        global.cli.multiplayer.createJoinRoom(roomId, "game", true, null, { name: "alpha" }, function (connection) {
+        global.cli.multiplayer.createJoinRoom(roomId, "cuppong", true, null, { name: client.connectUserId }, function (connection) {
             global.con = connection;
             global.con.addMessageCallback("*", function (message) {
                 switch (message.type) {
                     case "join":
-                        global.isSpectator = message.getBoolean(0);
+                        //global.isSpectator = message.getBoolean(0);
+                        if (message.getString(0) === client.connectUserId) {
+                            global.myturn = true;
+                        } else {
+                            global.myturn = false;
+                        }
+                        //alert(`got join, m0= ${message.getString(0)} uid= ${client.connectUserId}, turn=${global.myturn}`);
                         break;
                     case "system":
-                        let mes = m.getString(0);
+                        let mes = message.getString(0);
+                        //alert(mes);
                         break;
                     case "pause":
 
                         break;
+                    case "cup":
+                        if (message.getString(0) !== global.userid) {
+                            opcups[message.getInt(1)].hit = true;
+                        }
+                        break;
+                    case "turn":
+                        if (global.userid !== message.getString(0)) {
+                            global.myturn = message.getBoolean(1);
+                        }
+                        //alert(`got join, m0= ${message.getString(0)} uid= ${client.connectUserId}, turn=${global.myturn}, cond=${message.getString(0) === global.cli.connectUserId}`);
+                        break;
                 }
             });
         });
-        document.removeChild('signinbutton');
+        //document.removeChild('signinbutton');
     }, function (error) {
         alert(`Error: ${error}`);
     });
@@ -112,7 +144,7 @@ function canvasLobby() {
     var canvas = document.getElementById('gameCanvas');
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, 1000, 1000);
-    ctx.drawImage(images.table, 0, 0, 1000, 1000);
+    ctx.drawImage(images.table, 0, 0, 800, 800);
     remove('signinbutton');
     remove('registerbutton');
     remove('usernametextbox');
