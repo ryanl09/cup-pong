@@ -114,7 +114,7 @@ function connectToGame(roomId) {
                         game.inMatch = false;
                         break;
                     case "opponent":
-                        alert(`Opponent: ${message.getString(0)}`);
+                        //alert(`Opponent: ${message.getString(0)}`);
                         break;
                 }
             });
