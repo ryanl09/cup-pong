@@ -6,7 +6,9 @@ let global = {
     myturn: true,
     u: null,
     p: null,
-    cuid: null
+    cuid: null, 
+    shots: 0,
+    hit: 0
 };
 
 let cups = [];

@@ -191,17 +191,9 @@ var loop = function() {
                             resetBall(true);
                             global.con.send("cup", global.userid, i);
                             if (cupsHit >= global.cupCount) {
-                                global.cli.send("gameover", global.userid);
-                                var obj = { totalShotsTaken: shotsTaken, totalCupsHit: cupsHit };
-                                global.cli.bigDb.createObject("PlayerObjects", global.userid, obj, function(dbobj) {
-                                    if (dobj != null) {
-                                        obj.totalShotsTaken += dbobj.totalShotsTaken;
-                                        obj.totalCupsHit += dbobbj.totalCupsHit;
-                                    }
-                                    obj.save();
-                                }, function (error) {
-                                    console.log(`${error}`);
-                                });
+                                global.con.send("gameover", global.userid);
+                                global.shots = shotsTaken;
+                                global.hit = cupsHit;
                                 startX = 0;
                                 startY = 0;
                                 endX = 0;
@@ -214,6 +206,7 @@ var loop = function() {
                                 canShoot = true;
                                 wasReset=true;
                                 lastY = 0;
+                                loopTimer = null;
                             }
                             break;
                         }
@@ -224,6 +217,30 @@ var loop = function() {
                         }
                 }
             }
+        }
+    } else {
+        var j = 0;
+        for (let i = 0; i < opcups.length; i++) {
+            if (opcups[i].hit) {
+                j++;
+            }
+        }
+        if (j == opcups.length) {
+            global.con.send("gameover", "");
+            global.shots = shotsTaken;
+            global.hit = cupsHit;
+            startX = 0;
+            startY = 0;
+            endX = 0;
+            endY = 0;
+            m = 0;
+            sizeMult = 0;
+            cupsHit = 0;
+            shots = 0;
+            shotsMade = 0;
+            canShoot = true;
+            wasReset=true;
+            lastY = 0;
         }
     }
     /*

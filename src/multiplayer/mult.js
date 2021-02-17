@@ -43,6 +43,7 @@ function connect() {
                         if (global.userid === message.getString(1) || global.userid === message.getString(2)) {
                             global.myturn = (global.userid === message.getString(1));
                             game.inMatch = true;
+                            findingMatch = false;
                             remove('matchbutton');
                             connectToGame(message.getString(0));
                             initCups(10);
@@ -93,8 +94,9 @@ function connectToGame(roomId) {
 
                         break;
                     case "cup":
+                        alert(`${message.getString(0)}`);
                         if (message.getString(0) !== global.userid) {
-                            opcups[message.getInt(1)].hit = true;
+                            opcups[(global.cupCount-1) - message.getInt(1)].hit = true;
                         }
                         break;
                     case "turn":
@@ -105,9 +107,13 @@ function connectToGame(roomId) {
                         break;
                     case "gameover":
                         var won = message.getString(0) === global.userid;
+                        global.con.send("stats", global.shots, global.hit);
+                        global.shots = 0;
+                        global.hits = 0;
                         global.con.disconnect();
-                        canvasLobby();
+                        canvasLobbyAltered();
                         alert(won ? `You won!` : `You lost :(`);
+                        global.inMatch = false;
                         break;
                 }
             });
@@ -157,6 +163,17 @@ function canvasLobby() {
     remove('passwordtextbox');
     remove('usernamelabel');
     remove('passwordlabel');
+    var matchbutton = document.createElement("div");
+    matchbutton.innerHTML = '<button id="matchbutton" class="w3-button w3-black" onclick="matchmakingQueue()">Find match</button>';
+    document.body.appendChild(matchbutton);
+
+}
+
+function canvasLobbyAltered() {
+    var canvas = document.getElementById('gameCanvas');
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 1000, 1000);
+    ctx.drawImage(images.table, 0, 0, 800, 800);
     var matchbutton = document.createElement("div");
     matchbutton.innerHTML = '<button id="matchbutton" class="w3-button w3-black" onclick="matchmakingQueue()">Find match</button>';
     document.body.appendChild(matchbutton);
