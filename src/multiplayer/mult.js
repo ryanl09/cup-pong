@@ -73,13 +73,13 @@ function connectToGame(roomId) {
     }
     PlayerIO.authenticate('cup-pong-blolf5amkovdn4okt5icg', "public", info, {}, function (client) {
         global.cli = client;
-        global.cli.multiplayer.createJoinRoom(roomId, "cuppong", true, null, { name: client.connectUserId }, function (connection) {
+        global.cli.multiplayer.createJoinRoom(roomId, "cuppong", true, null, { name: getUserid() }, function (connection) {
             global.con = connection;
             global.con.addMessageCallback("*", function (message) {
                 switch (message.type) {
                     case "join":
                         //global.isSpectator = message.getBoolean(0);
-                        if (message.getString(0) === client.connectUserId) {
+                        if (message.getString(0) == getUserid()) {
                             global.myturn = true;
                         } else {
                             global.myturn = false;
@@ -94,13 +94,12 @@ function connectToGame(roomId) {
 
                         break;
                     case "cup":
-                        alert(`${message.getString(0)}`);
-                        if (message.getString(0) !== global.userid) {
+                        if (getUserid() != message.getString(0)) {
                             opcups[(global.cupCount-1) - message.getInt(1)].hit = true;
                         }
                         break;
                     case "turn":
-                        if (global.userid !== message.getString(0)) {
+                        if (getUserid() != message.getString(0)) {
                             global.myturn = message.getBoolean(1);
                         }
                         //alert(`got join, m0= ${message.getString(0)} uid= ${client.connectUserId}, turn=${global.myturn}, cond=${message.getString(0) === global.cli.connectUserId}`);

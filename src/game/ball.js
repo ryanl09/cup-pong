@@ -120,7 +120,7 @@ function resetBall(counts) {
             if (shotsMade < 2)
             {
                 global.myturn = false;
-                global.con.send("turn", global.userid, false);
+                global.con.send("turn", getUserid(), false);
             }
         }
     }
@@ -189,9 +189,9 @@ var loop = function() {
                             cupsHit++;
                             shotsMade++;
                             resetBall(true);
-                            global.con.send("cup", global.userid, i);
+                            global.con.send("cup", getUserid(), i);
                             if (cupsHit >= global.cupCount) {
-                                global.con.send("gameover", global.userid);
+                                global.con.send("gameover", getUserid());
                                 global.shots = shotsTaken;
                                 global.hit = cupsHit;
                                 startX = 0;

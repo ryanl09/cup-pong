@@ -21,6 +21,10 @@ let game = {
     turn: false
 };
 
+const getUserid = () => {
+    return global.userid;
+};
+
 let images = {
     ball: new Image(),
     cup: new Image(),
