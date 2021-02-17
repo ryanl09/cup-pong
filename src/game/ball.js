@@ -13,6 +13,7 @@ var endX = 0;
 var endY = 0;
 var m = 0;
 var sizeMult = 0;
+var shotsTaken = 0;
 var cupsHit = 0;
 
 var shots = 0;
@@ -112,6 +113,7 @@ var setup = function() {
 function resetBall(counts) { 
     if (counts) {
         shots++;
+        shotsTaken++;
         if (shots >= 2) {
             shots = 0;
             shotsMade = 0;
@@ -168,7 +170,6 @@ var loop = function() {
         if (lastY == ball.position.y && !wasReset) {
             resetBall(true);
         }
-        console.log(`${ball.position.x}, ${ball.position.y}, ${ball.position.z}`);
         lastY = ball.position.y;
     }
     // Handle collisions
@@ -190,9 +191,36 @@ var loop = function() {
                             resetBall(true);
                             global.con.send("cup", global.userid, i);
                             if (cupsHit >= global.cupCount) {
-                                //gameOver
+                                global.cli.send("gameover", global.userid);
+                                var obj = { totalShotsTaken: shotsTaken, totalCupsHit: cupsHit };
+                                global.cli.bigDb.createObject("PlayerObjects", global.userid, obj, function(dbobj) {
+                                    if (dobj != null) {
+                                        obj.totalShotsTaken += dbobj.totalShotsTaken;
+                                        obj.totalCupsHit += dbobbj.totalCupsHit;
+                                    }
+                                    obj.save();
+                                }, function (error) {
+                                    console.log(`${error}`);
+                                });
+                                startX = 0;
+                                startY = 0;
+                                endX = 0;
+                                endY = 0;
+                                m = 0;
+                                sizeMult = 0;
+                                cupsHit = 0;
+                                shots = 0;
+                                shotsMade = 0;
+                                canShoot = true;
+                                wasReset=true;
+                                lastY = 0;
                             }
                             break;
+                        }
+                        if (ballMidX >= cups[i].hitBounds.left && ballMidX <= cups[i].hitBounds.right &&
+                            ballMidY <= cups[i].y + cups[i].height && ballMidY >= cups[i].hitBounds.bottom) {
+                            ball.velocity.x *= ball.restitution;
+                            ball.velocity.z *= ball.restitution;
                         }
                 }
             }

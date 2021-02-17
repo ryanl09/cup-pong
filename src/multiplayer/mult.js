@@ -103,6 +103,12 @@ function connectToGame(roomId) {
                         }
                         //alert(`got join, m0= ${message.getString(0)} uid= ${client.connectUserId}, turn=${global.myturn}, cond=${message.getString(0) === global.cli.connectUserId}`);
                         break;
+                    case "gameover":
+                        var won = message.getString(0) === global.userid;
+                        global.con.disconnect();
+                        canvasLobby();
+                        alert(won ? `You won!` : `You lost :(`);
+                        break;
                 }
             });
         });
