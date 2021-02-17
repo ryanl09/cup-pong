@@ -45,11 +45,11 @@ function connect() {
                             game.inMatch = true;
                             findingMatch = false;
                             remove('matchbutton');
+                            //disconnect();
                             connectToGame(message.getString(0));
                             initCups(10);
                             renderCups(10);
                             setup();
-                            //disconnect();
                             //connectToGame(message.getString(0));
                         }
                         break;
@@ -76,6 +76,7 @@ function connectToGame(roomId) {
         global.cli.multiplayer.createJoinRoom(roomId, "cuppong", true, null, { name: getUserid() }, function (connection) {
             global.con = connection;
             global.con.addMessageCallback("*", function (message) {
+                connection.send("init", global.userid);
                 switch (message.type) {
                     case "join":
                         //global.isSpectator = message.getBoolean(0);
@@ -99,9 +100,7 @@ function connectToGame(roomId) {
                         }
                         break;
                     case "turn":
-                        if (getUserid() != message.getString(0)) {
-                            global.myturn = message.getBoolean(1);
-                        }
+                        global.myturn = message.getBoolean(0);
                         //alert(`got join, m0= ${message.getString(0)} uid= ${client.connectUserId}, turn=${global.myturn}, cond=${message.getString(0) === global.cli.connectUserId}`);
                         break;
                     case "gameover":
@@ -112,7 +111,10 @@ function connectToGame(roomId) {
                         global.con.disconnect();
                         canvasLobbyAltered();
                         alert(won ? `You won!` : `You lost :(`);
-                        global.inMatch = false;
+                        game.inMatch = false;
+                        break;
+                    case "opponent":
+                        alert(`Opponent: ${message.getString(0)}`);
                         break;
                 }
             });
@@ -131,7 +133,8 @@ function disconnect() {
 }
 
 function matchmakingQueue() {
-    if (!findingMatch && !global.inMatch) {
+    
+    if (!findingMatch && !game.inMatch) {
         findingMatch = true;
         global.con.send('findmatch');
     }

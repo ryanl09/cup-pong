@@ -117,11 +117,8 @@ function resetBall(counts) {
         if (shots >= 2) {
             shots = 0;
             shotsMade = 0;
-            if (shotsMade < 2)
-            {
-                global.myturn = false;
-                global.con.send("turn", getUserid(), false);
-            }
+            global.myturn = false;
+            global.con.send("turn", getUserid(), false);
         }
     }
     ball.velocity.x = 0;
