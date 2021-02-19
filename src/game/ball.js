@@ -189,21 +189,7 @@ var loop = function() {
                             global.con.send("cup", getUserid(), i);
                             if (cupsHit >= global.cupCount) {
                                 global.con.send("gameover", getUserid());
-                                global.shots = shotsTaken;
-                                global.hit = cupsHit;
-                                startX = 0;
-                                startY = 0;
-                                endX = 0;
-                                endY = 0;
-                                m = 0;
-                                sizeMult = 0;
-                                cupsHit = 0;
-                                shots = 0;
-                                shotsMade = 0;
-                                canShoot = true;
-                                wasReset=true;
-                                lastY = 0;
-                                loopTimer = null;
+                                game.inMatch = false;
                             }
                             break;
                         }
@@ -215,15 +201,7 @@ var loop = function() {
                 }
             }
         }
-    } else {
-        var j = 0;
-        for (let i = 0; i < opcups.length; i++) {
-            if (opcups[i].hit) {
-                j++;
-            }
-        }
-        if (j == opcups.length) {
-            global.con.send("gameover", "");
+        if (!game.inMatch) {
             global.shots = shotsTaken;
             global.hit = cupsHit;
             startX = 0;
@@ -238,6 +216,7 @@ var loop = function() {
             canShoot = true;
             wasReset=true;
             lastY = 0;
+            clearInterval(loopTimer);
         }
     }
     /*
@@ -276,8 +255,9 @@ var loop = function() {
     sizeMult = 0.3 * (800 - ball.position.y);
     if (global.myturn) {
         ctx.drawImage(images.ball, ball.position.z, ball.position.x, size + sizeMult, size + sizeMult);
-    } else {
-
+        if (mouse.isDown) {
+            ctx.drawImage(images.dash, 0, 325, 1000, 25);
+        }
     }
     if (!global.myturn) {
         ctx.fillStyle = "#e00909";

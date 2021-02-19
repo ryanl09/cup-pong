@@ -19,12 +19,24 @@
             bg.onload = () => {
                 ctx.drawImage(bg, 0, 0, 800, 800);
             }
+            
         };
         </script>
         <link rel="stylesheet" href="styles/style.css">
         <link rel="stylesheet" href="styles/w3.css">
     </head>
     <body>
+        <!--
+        <div class="alert success">
+            <span class="closebtn">&times;</span>  
+            <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+        -->
+          <div class="grid-container">
+                <textarea id="chatoutput" rows="10" cols="40" readonly="true"></textarea>
+                <input id="chatinput" style="top: 10%">
+                <button class="w3-button w3-black" id="sendchatbutton" onclick="say()">Send!</button>
+          </div>
         <canvas id="gameCanvas" width="800" height="800" style="border:4px solid #000000;"></canvas>
         <label id="usernamelabel">Username:</label>
         <input id="usernametextbox" type="text" size="10">
@@ -33,5 +45,17 @@
         <button id="signinbutton" class="w3-button w3-black" onclick="connect()">Sign In!</button>
         <button id="registerbutton" class="w3-button w3-black" onclick="register()">Register!</button>
         <p id="connectText">Not connected</p>
+        <script type="text/javascript">
+        var close = document.getElementsByClassName("closebtn");
+        var i;
+        for (i = 0; i < close.length; i++) {
+            close[i].onclick = function() {
+            var div = this.parentElement;
+            div.style.opacity = "0";
+            setTimeout(function(){ div.style.display = "none"; }, 600);
+            }
+        }
+        //document.getElementById('pcontainer').innerHTML = '<p>new paragraph</p>' + document.getElementById('pcontainer').innerHTML;
+        </script>
     </body>
 </html>

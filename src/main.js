@@ -28,13 +28,15 @@ const getUserid = () => {
 let images = {
     ball: new Image(),
     cup: new Image(),
-    table: new Image()
+    table: new Image(),
+    dash: new Image()
 };
 
 function preloadImages() {
     images.ball.src = 'img/ball.png';
     images.cup.src = 'img/cupshadow.png';
     images.table.src = 'img/table.png';
+    images.dash.src = 'img/dash.png';
 }
 
 function initCups(numCups) {
@@ -126,5 +128,13 @@ function renderCups() {
             ctx.drawImage(images.cup, opcups[n - i].x, opcups[n - i].y, opcups[n - i].width, opcups[n - i].height);
         }
     }
+}
+
+function successAlert() {
+
+}
+
+function receivedInvite() {
+    
 }
 

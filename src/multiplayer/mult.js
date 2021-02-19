@@ -1,4 +1,6 @@
 let findingMatch = false;
+let haveInvite = false;
+let invitedBy = "";
 
 function generateGuestName() {
     let guest = "guest";
@@ -6,38 +8,51 @@ function generateGuestName() {
     return guest;
 }
 
-function connect() {
-    let u = document.getElementById("usernametextbox").value;
-    let p = document.getElementById("passwordtextbox").value;
-    let info = {
-        userId: u,
-        username: u,
-        password: p
-    };
-    global.u = u;
-    global.p = p;
-    global.userid = "simple" + u;
-    global.cuid = global.userid;
-    if (!u || !p) {
-        game.isGuest = true;
+function connect(fromGame) {
+
+    let info = null;
+    if (!fromGame) {
+        let u = document.getElementById("usernametextbox").value;
+        let p = document.getElementById("passwordtextbox").value;
         info = {
-            userId: generateGuestName()
+            userId: u,
+            username: u,
+            password: p
+        };
+        global.u = u;
+        global.p = p;
+        global.userid = "simple" + u;
+        global.cuid = global.userid;
+        if (!u || !p) {
+            game.isGuest = true;
+            info = {
+                userId: generateGuestName()
+            };
+        }
+    } else {
+        info = {
+            userId: global.u,
+            username: global.u,
+            password: global.p
         };
     }
+    
     PlayerIO.authenticate('cup-pong-blolf5amkovdn4okt5icg', (game.isGuest ? "guest" : "public"), info, {}, function (client) {
         global.cli = client;
         global.cli.multiplayer.createJoinRoom("lobbyroom", "lobby", true, null, { name: client.connectUserId }, function (connection) {
             global.con = connection;
             console.log("Connected");
+            connection.send("init", false);
             document.getElementById('connectText').innerHTML = '<p>Connected!</p>';
             global.con.addMessageCallback("*", function (message) {
                 switch (message.type) {
                     case "join":
-                        //alert(`${message.getString(0)} joined`);
+                        if (message.getString(0) != global.userid) {
+                            addText("*USER " + message.getString(0).substring(6) + ' joined!');
+                        }
                         break;
                     case "system":
-                        let mes = message.getString(0);
-                        //alert(mes);
+                        addText("*SYSTEM: " + message.getString(0));
                         break;
                     case 'findmatch':
                         if (global.userid === message.getString(1) || global.userid === message.getString(2)) {
@@ -56,6 +71,17 @@ function connect() {
                     case "banned":
 
                         break;
+                    case "chat":
+                        addText(message.getString(0).substring(6) + ": " + message.getString(1));
+                        break;
+                    case "dm":
+                        addText('DM (from ' + message.getString(0).substring(6) + '): ' + message.getString(1));
+                        break;
+                    case "invite":
+                        haveInvite = true;
+                        invitedBy = message.getString(0).substring(6);
+                        addText(`*USER ${invitedBy} invited you to play. \n Respond with either: /invite yes, or /invite no`);
+                        break;
                 }
             });
         });
@@ -69,7 +95,7 @@ function connectToGame(roomId) {
     let info = {
         userId: global.u,
         username: global.u,
-        password: global.p
+        password: global.p 
     }
     PlayerIO.authenticate('cup-pong-blolf5amkovdn4okt5icg', "public", info, {}, function (client) {
         global.cli = client;
@@ -77,6 +103,7 @@ function connectToGame(roomId) {
             global.con = connection;
             global.con.addMessageCallback("*", function (message) {
                 connection.send("init", global.userid);
+                clearText();
                 switch (message.type) {
                     case "join":
                         //global.isSpectator = message.getBoolean(0);
@@ -88,16 +115,13 @@ function connectToGame(roomId) {
                         //alert(`got join, m0= ${message.getString(0)} uid= ${client.connectUserId}, turn=${global.myturn}`);
                         break;
                     case "system":
-                        let mes = message.getString(0);
-                        //alert(mes);
+                        addText(output.value += "*SYSTEM: " + message.getString(0));
                         break;
                     case "pause":
 
                         break;
                     case "cup":
-                        if (getUserid() != message.getString(0)) {
-                            opcups[(global.cupCount-1) - message.getInt(1)].hit = true;
-                        }
+                            opcups[(global.cupCount-1) - message.getInt(0)].hit = true;
                         break;
                     case "turn":
                         global.myturn = message.getBoolean(0);
@@ -112,9 +136,13 @@ function connectToGame(roomId) {
                         canvasLobbyAltered();
                         alert(won ? `You won!` : `You lost :(`);
                         game.inMatch = false;
+                        connect();
                         break;
                     case "opponent":
                         //alert(`Opponent: ${message.getString(0)}`);
+                        break;
+                    case "chat":
+                        addText(message.getString(0).substring(6) + ": " + message.getString(1));
                         break;
                 }
             });
@@ -185,4 +213,35 @@ function canvasLobbyAltered() {
 function remove(id) {
     var element = document.getElementById(id);
     element.parentNode.removeChild(element);
+}
+
+function say() {
+    var text = document.getElementById('chatinput').value;
+    text = text.trim();
+    if (text) {
+        if (text.startsWith('/dm ')) {
+            global.con.send("dm", text.split(' ')[1], text.split(' ')[2]);
+            addText('DM (to ' + text.split(' ')[1] + '): ' + text.split(' ')[2]);
+        } else if (text.startsWith('/invite ')) {
+            if ((text.split(' ')[1] == 'yes' || text.split(' ')[1] == 'no') && haveInvite) {
+                haveInvite = false;
+                global.con.send('respondinvite', global.userid, invitedBy, text.split(' ')[1] == 'yes');
+                invitedBy = false;
+            } else {
+                global.con.send('invite', text.split(' ')[1]);
+                addText(`Invite sent to ${text.split(' ')[1]}`)
+            }
+        } else {
+            global.con.send('chat', text);
+        }
+        document.getElementById('chatinput').value = "";
+    }
+}
+
+function addText(text) {
+    document.getElementById('chatoutput').value += text + '\n';
+}
+
+function clearText() {
+    document.getElementById('chatoutput').value = "";
 }
