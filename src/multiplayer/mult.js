@@ -231,7 +231,10 @@ function say() {
                 global.con.send('invite', text.split(' ')[1]);
                 addText(`Invite sent to ${text.split(' ')[1]}`)
             }
-        } else {
+        } else if (text.startsWith('/ban')) {
+        
+        }
+        else {
             global.con.send('chat', text);
         }
         document.getElementById('chatinput').value = "";
